@@ -42,11 +42,11 @@ template <typename T>
 concept ConvertibleToGenre = std::is_same_v<std::decay_t<T>, Genre> || std::convertible_to<T, std::string_view>;
 
 struct Book {
-    // string_view для экономии памяти, чтобы ссылаться на оригинальную строку, хранящуюся в другом контейнере
-    std::string_view author{};
     // Вынужденное решение сменить тип с std::string на std::string_view, иначе constexpr Book переменные не
     // компилировались
     std::string_view title{};
+    // string_view для экономии памяти, чтобы ссылаться на оригинальную строку, хранящуюся в другом контейнере
+    std::string_view author{};
 
     int year{};
     double rating{};
@@ -54,9 +54,9 @@ struct Book {
     Genre genre{};
 
     template <ConvertibleToGenre T>
-    explicit constexpr Book(std::string_view author_input, std::string_view title_input, int year_input,
+    explicit constexpr Book(std::string_view title_input, std::string_view author_input, int year_input,
                             T &&genre_input, double rating_input, int read_count_input)
-        : author(author_input), title(title_input), year(year_input), rating(rating_input),
+        : title(title_input), author(author_input), year(year_input), rating(rating_input),
           read_count(read_count_input) {
         if constexpr (std::is_same_v<std::decay_t<T>, Genre>)
             this->genre = genre_input;
@@ -81,15 +81,15 @@ struct formatter<bookdb::Genre, char> {
 
 template <>
 struct formatter<bookdb::Book, char> {
-    std::string format_str = "Автор: {}, Название: {}, Год: {}, Жанр: {}, Рейтинг: {}, Прочтений: {}";
+    std::string format_str = "Название: {}, Автор: {}, Год: {}, Жанр: {}, Рейтинг: {}, Прочтений: {}";
 
     constexpr auto parse(format_parse_context &ctx) {
         auto it{ctx.begin()};
         auto end{ctx.end()};
 
         if (it != end && *it != '}') {
-            auto close_brace {std::find(it, end, '}')};
-            format_str.assign(it, close_brace); 
+            auto close_brace{std::find(it, end, '}')};
+            format_str.assign(it, close_brace);
             it = close_brace;
         }
         return it;
@@ -99,7 +99,7 @@ struct formatter<bookdb::Book, char> {
     auto format(const bookdb::Book &book, FormatContext &ctx) const {
         return std::vformat_to(
             ctx.out(), format_str,
-            std::make_format_args(book.author, book.title, book.year, book.genre, book.rating, book.read_count));
+            std::make_format_args(book.title, book.author, book.year, book.genre, book.rating, book.read_count));
     }
 };
 

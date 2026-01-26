@@ -5,8 +5,14 @@
 #include "comparators.hpp"
 #include "filters.hpp"
 #include "statsistics.hpp"
+#include <iostream>
 
 using namespace bookdb;
+
+void PrintBooks(const std::vector<Book> &books) {
+    for (const auto &book : books)
+        std::println("{}", book);
+};
 
 int main() {
     //
@@ -26,11 +32,55 @@ int main() {
     // 4. Через std::string (OK, если не в constexpr-контексте)
     std::string g = "SciFi";
     Book test_book_4{"1984", "George Orwell", 1949, g, 4., 190};  // Но не constexpr!
-
-    std::println("{}", test_book_1);
-    std::println("{}", bookdb::Genre::Biography);
     // 5. Недопустимый тип (ошибка компиляции)
     // Book b5{"A", "T", 2023, 42, 0.0, 0};  // int не удовлетворяет ConvertibleToGenre
+
+    // Проверка форматтера
+    std::println("{}", test_book_1);
+    std::println("{}", bookdb::Genre::Biography);
+
+    std::vector<Book> test_db;
+    test_db.emplace_back("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
+    test_db.emplace_back("Animal Farm", "George Orwell", 1945, Genre::Fiction, 4.4, 143);
+    test_db.emplace_back("The Great Gatsby", "F. Scott Fitzgerald", 1925, Genre::Fiction, 4.5, 120);
+    test_db.emplace_back("To Kill a Mockingbird", "Harper Lee", 1960, Genre::Fiction, 4.8, 156);
+    test_db.emplace_back("Pride and Prejudice", "Jane Austen", 1813, Genre::Fiction, 4.7, 178);
+    test_db.emplace_back("The Catcher in the Rye", "J.D. Salinger", 1951, Genre::Fiction, 4.3, 112);
+    test_db.emplace_back("Brave New World", "Aldous Huxley", 1932, Genre::SciFi, 4.5, 98);
+    test_db.emplace_back("Jane Eyre", "Charlotte Brontë", 1847, Genre::Fiction, 4.6, 110);
+    test_db.emplace_back("The Hobbit", "J.R.R. Tolkien", 1937, Genre::Fiction, 4.9, 203);
+    test_db.emplace_back("Lord of the Flies", "William Golding", 1954, Genre::Fiction, 4.2, 89);
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByYear{});
+    std::println("Сортировка по году");
+    PrintBooks(test_db);
+    std::println();
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByGenre{});
+    std::println("Сортировка по жанру");
+    PrintBooks(test_db);
+    std::println();
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByAuthor{});
+    std::println("Сортировка по автору");
+    PrintBooks(test_db);
+    std::println();
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByRating{});
+    std::println("Сортировка по рейтингу");
+    PrintBooks(test_db);
+    std::println();
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByReadCount{});
+    std::println("Сортировка по числу прочтений");
+    PrintBooks(test_db);
+    std::println();
+
+    std::sort(test_db.begin(), test_db.end(), comp::LessByTitle{});
+    std::println("Сортировка по названию");
+    PrintBooks(test_db);
+    std::println();
+
     // Create a book database
     BookDatabase<std::vector<Book>> db;
 
