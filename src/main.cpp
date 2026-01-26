@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <list>
 
 #include "book.hpp"
 #include "book_database.hpp"
@@ -81,8 +82,89 @@ int main() {
     PrintBooks(test_db);
     std::println();
 
-    // Create a book database
-    BookDatabase<std::vector<Book>> db;
+    // BookContainerLike
+    // позитив
+    static_assert(bookdb::BookContainerLike<std::vector<bookdb::Book>>,
+                  "vector<Book> должен удовлетворять BookContainerLike");
+    // позитив
+    static_assert(bookdb::BookContainerLike<std::list<bookdb::Book>>,
+                  "list<Book> должен удовлетворять BookContainerLike");
+    // негатив
+    static_assert(!bookdb::BookContainerLike<std::vector<int>>,
+                  "vector<int> не должен удовлетворять BookContainerLike — value_type != Book");
+    // негатив
+    static_assert(!bookdb::BookContainerLike<int>, "int не контейнер — нет begin(), end(), size()");
+
+    // BookIterator
+    // позитив
+    static_assert(bookdb::BookIterator<decltype(test_db.begin())>, "итератор vector<Book> должен быть BookIterator");
+    // позитив
+    static_assert(bookdb::BookIterator<decltype(test_db.cbegin())>,
+                  "const_iterator vector<Book> должен быть BookIterator");
+    // негатив
+    std::vector<int> ints = {1};
+    static_assert(!bookdb::BookIterator<decltype(ints.begin())>,
+                  "итератор vector<int> не BookIterator — value_type != Book");
+    // негатив
+    static_assert(!bookdb::BookIterator<int *>, "int* не удовлетворяет BookIterator — не input_iterator для Book");
+
+    // BookSentinel
+    auto it{test_db.begin()};
+    auto sentinel{test_db.end()};
+    // позитив
+    static_assert(bookdb::BookSentinel<decltype(sentinel), decltype(it)>,
+                  "end() vector<Book> должен быть сентинелом для begin()");
+    // негатив
+    static_assert(!bookdb::BookSentinel<decltype(ints.end()), decltype(it)>,
+                  "сентинел vector<int> не подходит для итератора vector<Book>");
+    // негатив
+    static_assert(!bookdb::BookSentinel<int, decltype(it)>, "int не может быть сентинелом для BookIterator");
+
+    // BookPredicate
+    // позитив
+    auto is_recent = [](const bookdb::Book &b) { return b.year >= 2000; };
+    static_assert(bookdb::BookPredicate<decltype(is_recent)>, "лямбда (const Book&) -> bool должна быть BookPredicate");
+
+    // позитив
+    struct IsFiction {
+        bool operator()(const bookdb::Book &b) const { return b.genre == bookdb::Genre::Fiction; }
+    };
+    static_assert(bookdb::BookPredicate<IsFiction>, "функтор с operator()(const Book&) должен быть BookPredicate");
+
+    // негатив
+    auto returns_string = [](const bookdb::Book &b) { return "lol"s; };
+    static_assert(!bookdb::BookPredicate<decltype(returns_string)>,
+                  "предикат, возвращающий std::string, не удовлетворяет BookPredicate — не bool");
+
+    // негатив
+    auto takes_int = [](int x) { return x > 0; };
+    static_assert(!bookdb::BookPredicate<decltype(takes_int)>,
+                  "предикат, принимающий int, не удовлетворяет BookPredicate");
+
+    // BookComparator
+    // позитив
+    static_assert(bookdb::BookComparator<decltype(comp::LessByYear())>,
+                  "компоратор comp::LessByYear() -> bool должна быть BookComparator");
+
+    // позитив
+    static_assert(bookdb::BookComparator<comp::LessByTitle>, "компоратор comp::LessByTitle должен быть BookComparator");
+
+    // негатив
+    auto unary = [](const bookdb::Book &a) { return true; };
+    static_assert(!bookdb::BookComparator<decltype(unary)>,
+                  "унарный предикат не удовлетворяет BookComparator — нужно два аргумента");
+
+    // негатив
+    auto returns_void = [](const bookdb::Book &a, const bookdb::Book &b) {};
+    static_assert(!bookdb::BookComparator<decltype(returns_void)>,
+                  "компаратор, возвращающий void, не удовлетворяет BookComparator");
+
+    // негатив
+    auto compares_int = [](int a, int b) { return a < b; };
+    static_assert(!bookdb::BookComparator<decltype(compares_int)>,
+                  "компаратор для int не удовлетворяет BookComparator для Book");
+
+    // Create a book database BookDatabase<std::vector<Book>> db;
 
     /*
 

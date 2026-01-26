@@ -8,18 +8,24 @@
 namespace bookdb {
 
 template <typename T>
-concept BookContainerLike = true;
+concept BookContainerLike = requires(T container) {
+    requires std::same_as<typename T::value_type, Book>;
+    { container.begin() } -> std::input_iterator;
+    { container.end() } -> std::sentinel_for<decltype(container.begin())>;
+    { container.size() } -> std::convertible_to<std::size_t>;
+    requires std::ranges::range<T>;
+};
 
 template <typename T>
-concept BookIterator = true;
+concept BookIterator = std::input_iterator<T> && std::same_as<std::iter_value_t<T>, Book>;
 
 template <typename S, typename I>
-concept BookSentinel = true;
+concept BookSentinel = std::sentinel_for<S, I> && std::same_as<std::iter_value_t<I>, Book>;
 
 template <typename P>
-concept BookPredicate = true;
+concept BookPredicate = std::predicate<P, const Book &>;
 
 template <typename C>
-concept BookComparator = true;
+concept BookComparator = std::strict_weak_order<C, Book, Book>;
 
 }  // namespace bookdb
