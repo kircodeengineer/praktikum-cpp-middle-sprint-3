@@ -16,7 +16,8 @@ int main() {
     //       которые не обязательны к реализации для сдачи работы.
     //     - Не забудьте перед созданием коммита вызвать 'run_clang_format.sh' для форматирования кода
     //
-
+    Book test_book1{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190};
+    Book test_book2{"1984", "George Orwell", 1949, "SciFi"sv, 4., 190};
     // Create a book database
     BookDatabase<std::vector<Book>> db;
 
