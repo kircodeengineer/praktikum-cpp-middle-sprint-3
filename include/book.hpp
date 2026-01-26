@@ -25,7 +25,7 @@ inline constexpr std::array<GenreInfo, 6> genres = {{{Genre::Fiction, "Fiction"s
                                                      {Genre::Biography, "Biography"sv},
                                                      {Genre::Mystery, "Mystery"sv},
                                                      {unknownGenreInfo.genre, unknownGenreInfo.name}}};
-// Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
+
 constexpr std::string_view GenreToStringView(Genre g) {
     auto it{
         std::find_if(genres.begin(), genres.end(), [g](const GenreInfo &genre_info) { return genre_info.genre == g; })};
@@ -38,20 +38,25 @@ constexpr Genre GenreFromString(std::string_view sv) {
     return it != genres.end() ? it->genre : unknownGenreInfo.genre;
 }
 
+template <typename T>
+concept ConvertibleToGenre = std::is_same_v<std::decay_t<T>, Genre> || std::convertible_to<T, std::string_view>;
+
 struct Book {
     // string_view для экономии памяти, чтобы ссылаться на оригинальную строку, хранящуюся в другом контейнере
     std::string_view author{};
-    std::string title{};
+    // Вынужденное решение сменить тип с std::string на std::string_view, иначе constexpr Book переменные не
+    // компилировались
+    std::string_view title{};
 
     int year{};
     double rating{};
     int read_count{};
     Genre genre{};
 
-    template <typename T>
-    explicit constexpr Book(std::string_view author_input, std::string title_input, int year_input, T &&genre_input,
-                            double rating_input, int read_count_input)
-        : author(author_input), title(std::move(title_input)), year(year_input), rating(rating_input),
+    template <ConvertibleToGenre T>
+    explicit constexpr Book(std::string_view author_input, std::string_view title_input, int year_input,
+                            T &&genre_input, double rating_input, int read_count_input)
+        : author(author_input), title(title_input), year(year_input), rating(rating_input),
           read_count(read_count_input) {
         if constexpr (std::is_same_v<std::decay_t<T>, Genre>)
             this->genre = genre_input;

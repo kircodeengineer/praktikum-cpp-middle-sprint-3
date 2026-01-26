@@ -16,8 +16,18 @@ int main() {
     //       которые не обязательны к реализации для сдачи работы.
     //     - Не забудьте перед созданием коммита вызвать 'run_clang_format.sh' для форматирования кода
     //
-    Book test_book1{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190};
-    Book test_book2{"1984", "George Orwell", 1949, "SciFi"sv, 4., 190};
+    // 1. Через enum (OK)
+    constexpr Book test_book_1{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190};
+    // 2. Через string_view (OK)
+    constexpr Book test_book_2{"1984", "George Orwell", 1949, "SciFi"sv, 4., 190};
+    // 3. Через const char* (OK — преобразуется в string_view)
+    constexpr Book test_book_3{"1984", "George Orwell", 1949, "SciFi", 4., 190};
+    // 4. Через std::string (OK, если не в constexpr-контексте)
+    std::string g = "SciFi";
+    Book test_book_4{"1984", "George Orwell", 1949, g, 4., 190};  // Но не constexpr!
+
+    // 5. Недопустимый тип (ошибка компиляции)
+    // Book b5{"A", "T", 2023, 42, 0.0, 0};  // int не удовлетворяет ConvertibleToGenre
     // Create a book database
     BookDatabase<std::vector<Book>> db;
 
