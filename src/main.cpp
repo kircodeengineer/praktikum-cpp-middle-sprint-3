@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "book.hpp"
 #include "book_database.hpp"
 #include "comparators.hpp"
 #include "filters.hpp"
@@ -26,6 +27,8 @@ int main() {
     std::string g = "SciFi";
     Book test_book_4{"1984", "George Orwell", 1949, g, 4., 190};  // Но не constexpr!
 
+    std::println("{}", test_book_1);
+    std::println("{}", bookdb::Genre::Biography);
     // 5. Недопустимый тип (ошибка компиляции)
     // Book b5{"A", "T", 2023, 42, 0.0, 0};  // int не удовлетворяет ConvertibleToGenre
     // Create a book database

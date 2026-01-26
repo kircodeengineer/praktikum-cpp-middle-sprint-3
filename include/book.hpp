@@ -71,22 +71,7 @@ template <>
 struct formatter<bookdb::Genre, char> {
     template <typename FormatContext>
     auto format(const bookdb::Genre g, FormatContext &fc) const {
-        std::string genre_str;
-
-        // clang-format off
-        using bookdb::Genre;
-        switch (g) {
-            case Genre::Fiction:    genre_str = "Fiction"; break;
-            case Genre::Mystery:    genre_str = "Mystery"; break;
-            case Genre::NonFiction: genre_str = "NonFiction"; break;
-            case Genre::SciFi:      genre_str = "SciFi"; break;
-            case Genre::Biography:  genre_str = "Biography"; break;
-            case Genre::Unknown:    genre_str = "Unknown"; break;
-            default:
-                throw logic_error{"Unsupported bookdb::Genre"};
-            }
-        // clang-format on
-        return format_to(fc.out(), "{}", genre_str);
+        return format_to(fc.out(), "{}", bookdb::GenreToStringView(g));
     }
 
     constexpr auto parse(format_parse_context &ctx) {
@@ -94,6 +79,28 @@ struct formatter<bookdb::Genre, char> {
     }
 };
 
-// Ваш код для std::formatter<Book> здесь
+template <>
+struct formatter<bookdb::Book, char> {
+    std::string format_str = "Автор: {}, Название: {}, Год: {}, Жанр: {}, Рейтинг: {}, Прочтений: {}";
+
+    constexpr auto parse(format_parse_context &ctx) {
+        auto it{ctx.begin()};
+        auto end{ctx.end()};
+
+        if (it != end && *it != '}') {
+            auto close_brace {std::find(it, end, '}')};
+            format_str.assign(it, close_brace); 
+            it = close_brace;
+        }
+        return it;
+    }
+
+    template <typename FormatContext>
+    auto format(const bookdb::Book &book, FormatContext &ctx) const {
+        return std::vformat_to(
+            ctx.out(), format_str,
+            std::make_format_args(book.author, book.title, book.year, book.genre, book.rating, book.read_count));
+    }
+};
 
 }  // namespace std
