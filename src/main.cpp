@@ -7,6 +7,8 @@
 #include "filters.hpp"
 #include "statsistics.hpp"
 #include <iostream>
+#include <set>
+#include <unordered_set>
 
 using namespace bookdb;
 
@@ -14,6 +16,104 @@ void PrintBooks(const std::vector<Book> &books) {
     for (const auto &book : books)
         std::println("{}", book);
 };
+
+void test_TransparentStringLess() {
+    TransparentStringLess less;
+
+    std::string a = "apple";
+    std::string b = "banana";
+    std::string_view av = "apple";
+    std::string_view bv = "banana";
+
+    // Все возможные комбинации
+    std::cout << "a < b: " << less(a, b) << std::endl;      // 1 (true)
+    std::cout << "b < a: " << less(b, a) << std::endl;      // 0 (false)
+    std::cout << "a < bv: " << less(a, bv) << std::endl;    // 1
+    std::cout << "av < b: " << less(av, b) << std::endl;    // 1
+    std::cout << "av < bv: " << less(av, bv) << std::endl;  // 1
+    std::cout << "a < a: " << less(a, a) << std::endl;      // 0
+    std::cout << "av < av: " << less(av, av) << std::endl;  // 0
+}
+
+void test_TransparentStringEqual() {
+    TransparentStringEqual eq;
+
+    std::string a = "hello";
+    std::string b = "world";
+    std::string_view av = "hello";
+    std::string_view bv = "world";
+
+    std::cout << "a == a: " << eq(a, a) << std::endl;                    // 1
+    std::cout << "a == av: " << eq(a, av) << std::endl;                  // 1
+    std::cout << "av == a: " << eq(av, a) << std::endl;                  // 1
+    std::cout << "a == b: " << eq(a, b) << std::endl;                    // 0
+    std::cout << "av == bv: " << eq(av, bv) << std::endl;                // 0
+    std::cout << "av == \"hello\": " << eq(av, "hello"sv) << std::endl;  // 1
+}
+
+void test_TransparentStringHash() {
+    TransparentStringHash hash;
+
+    std::string str = "test";
+    std::string_view sv = "test";
+
+    size_t h1 = hash(str);
+    size_t h2 = hash(sv);
+
+    std::cout << "Hash of string: " << h1 << std::endl;
+    std::cout << "Hash of string_view: " << h2 << std::endl;
+    std::cout << "Equal hashes: " << (h1 == h2) << std::endl;
+
+    // Разные строки → разные хеши
+    std::string other = "other";
+    size_t h3 = hash(other);
+    std::cout << "Hash of 'other': " << h3 << std::endl;
+    std::cout << "h1 != h3: " << (h1 != h3) << std::endl;
+}
+
+void test_set_heterogeneous_lookup() {
+    std::set<std::string, TransparentStringLess> my_set;
+    my_set.insert("apple");
+    my_set.insert("banana");
+    my_set.insert("cherry");
+
+    std::string_view key = "banana";
+
+    auto it = my_set.find(key);
+    if (it != my_set.end()) {
+        std::cout << "Found: " << *it << std::endl;  // "banana"
+    } else {
+        std::cout << "Not found!" << std::endl;
+    }
+
+    key = "grape";
+    it = my_set.find(key);
+    if (it == my_set.end()) {
+        std::cout << "\"grape\" not found." << std::endl;
+    }
+}
+
+void test_unordered_set_heterogeneous_lookup() {
+    std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual> my_set;
+
+    my_set.insert("hello");
+    my_set.insert("world");
+
+    std::string_view key = "hello";
+
+    auto it = my_set.find(key);
+    if (it != my_set.end()) {
+        std::cout << "Found: " << *it << std::endl;  // "hello"
+    } else {
+        std::cout << "Not found!" << std::endl;
+    }
+
+    key = "not_present";
+    it = my_set.find(key);
+    if (it == my_set.end()) {
+        std::cout << "\"" << key << "\" not found." << std::endl;
+    }
+}
 
 int main() {
     //
@@ -52,6 +152,7 @@ int main() {
     test_db.emplace_back("The Hobbit", "J.R.R. Tolkien", 1937, Genre::Fiction, 4.9, 203);
     test_db.emplace_back("Lord of the Flies", "William Golding", 1954, Genre::Fiction, 4.2, 89);
 
+    std::println();
     std::sort(test_db.begin(), test_db.end(), comp::LessByYear{});
     std::println("Сортировка по году");
     PrintBooks(test_db);
@@ -164,6 +265,17 @@ int main() {
     static_assert(!bookdb::BookComparator<decltype(compares_int)>,
                   "компаратор для int не удовлетворяет BookComparator для Book");
 
+    std::println();
+    test_TransparentStringLess();
+    std::println();
+    test_TransparentStringEqual();
+    std::println();
+    test_TransparentStringHash();
+    std::println();
+    test_set_heterogeneous_lookup();
+    std::println();
+    test_unordered_set_heterogeneous_lookup();
+    std::println();
     // Create a book database BookDatabase<std::vector<Book>> db;
 
     /*
