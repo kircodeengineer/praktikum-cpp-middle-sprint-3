@@ -1,9 +1,9 @@
 #pragma once
 
 #include <print>
-#include <set>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 
 #include "book.hpp"
@@ -26,7 +26,7 @@ public:
     using reference = typename BookContainer::reference;
     using const_reference = typename BookContainer::const_reference;
 
-    using AuthorContainer = std::set<std::string>;
+    using AuthorContainer = std::unordered_set<std::string>;
     using AuthorIterator = typename AuthorContainer::iterator;
     using AuthorConstIterator = typename AuthorContainer::const_iterator;
 
@@ -35,6 +35,20 @@ public:
     void Clear() {
         books_.clear();
         authors_.clear();
+    }
+
+    void PushBack(const Book &book) {
+        auto author_it{GetOrInsertAuthor(book.author)};
+        books_.push_back(Book{book.title, *author_it, book.year, book.genre, book.rating, book.read_count});
+    }
+
+    template <typename... Args>
+    void EmplaceBack(Args &&...args) {
+        Book temp_book(std::forward<Args>(args)...);
+        auto author_it{GetOrInsertAuthor(temp_book.author)};
+
+        books_.emplace_back(temp_book.title, *author_it, temp_book.year, temp_book.genre, temp_book.rating,
+                            temp_book.read_count);
     }
 
     iterator begin() { return books_.begin(); }
@@ -68,6 +82,15 @@ public:
 private:
     BookContainer books_;
     AuthorContainer authors_;
+
+private:
+    AuthorIterator GetOrInsertAuthor(std::string_view author_name) {
+        auto it{authors_.find(std::string(author_name))};
+        if (it == authors_.end()) {
+            it = authors_.insert(std::string(author_name)).first;
+        }
+        return it;
+    }
 };
 
 }  // namespace bookdb

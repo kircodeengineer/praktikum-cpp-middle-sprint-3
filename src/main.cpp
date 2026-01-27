@@ -288,11 +288,8 @@ int main() {
     }
 
     std::println("is vect_db empty {}", vect_db.empty());
-    // Create a book database BookDatabase<std::vector<Book>> db;
-
-    /*
-
-    Код закомментирован, чтобы не приводить к ошибке компиляции
+    // Create a book database
+    BookDatabase<std::vector<Book>> db;
 
     // Add some books
     db.EmplaceBack("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
@@ -305,17 +302,27 @@ int main() {
     db.EmplaceBack("Jane Eyre", "Charlotte Brontë", 1847, Genre::Fiction, 4.6, 110);
     db.EmplaceBack("The Hobbit", "J.R.R. Tolkien", 1937, Genre::Fiction, 4.9, 203);
     db.EmplaceBack("Lord of the Flies", "William Golding", 1954, Genre::Fiction, 4.2, 89);
-    std::print("Books: {}\n\n", db);
+    std::println();
+    std::println("is vect_db empty {}", db.empty());
+    for (const auto &book : db)
+        std::println("{}", book);
+    // std::print("Books: {}\n\n", db);
 
     // Sorts
     std::sort(db.begin(), db.end(), comp::LessByAuthor{});
-    std::print("Books sorted by author: {}\n\n==================\n", db);
+    // std::print("Books sorted by author: {}\n\n==================\n", db);
+    std::println("Books sorted by author:");
+    for (const auto &book : db)
+        std::println("{}", book);
 
-    std::sort(db.begin(), db.end(), comp::LessByPopularity{});
-    std::print("Books sorted by popularity: {}\n\n==================\n", db);
+    std::sort(db.begin(), db.end(), comp::LessByRating{});
+    // std::print("Books sorted by popularity: {}\n\n==================\n", db);
+    std::println("Books sorted by popularity:");
+    for (const auto &book : db)
+        std::println("{}", book);
 
     // Author histogram
-    auto histogram = buildAuthorHistogramFlat(db);
+    /*auto histogram = buildAuthorHistogramFlat(db);
     std::print("Author histogram: {}", histogram);
 
     // Ratings
