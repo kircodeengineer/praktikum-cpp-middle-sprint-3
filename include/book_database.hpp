@@ -57,6 +57,10 @@ public:
                             temp_book.read_count);
     }
 
+    const std::vector<Book> &GetBooks() const { return books_; }
+
+    const std::unordered_set<std::string> &GetAuthors() const { return authors_; }
+
     iterator begin() { return books_.begin(); }
     iterator end() { return books_.end(); }
     const_iterator begin() const { return books_.begin(); }
