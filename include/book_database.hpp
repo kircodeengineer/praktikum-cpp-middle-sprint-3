@@ -32,6 +32,12 @@ public:
 
     BookDatabase() = default;
 
+    explicit BookDatabase(std::initializer_list<Book> books) {
+        for (const auto &book : books) {
+            PushBack(book);
+        }
+    }
+
     void Clear() {
         books_.clear();
         authors_.clear();

@@ -321,6 +321,10 @@ int main() {
     for (const auto &book : db)
         std::println("{}", book);
 
+    BookDatabase<std::vector<Book>> init_list_db{
+        Book{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190},
+        Book{"Animal Farm", "George Orwell", 1945, Genre::Fiction, 4.4, 143},
+        Book{"The Great Gatsby", "F. Scott Fitzgerald", 1925, Genre::Fiction, 4.5, 120}};
     // Author histogram
     /*auto histogram = buildAuthorHistogramFlat(db);
     std::print("Author histogram: {}", histogram);
