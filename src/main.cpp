@@ -6,6 +6,7 @@
 #include "comparators.hpp"
 #include "filters.hpp"
 #include "statsistics.hpp"
+#include <deque>
 #include <iostream>
 #include <set>
 #include <unordered_set>
@@ -276,6 +277,17 @@ int main() {
     std::println();
     test_unordered_set_heterogeneous_lookup();
     std::println();
+
+    BookDatabase<std::vector<Book>> vect_db;
+    BookDatabase<std::deque<Book>> deque_db;
+
+    std::sort(vect_db.begin(), vect_db.end(), comp::LessByAuthor{});
+
+    for (const auto &book : vect_db) {
+        // Только чтение
+    }
+
+    std::println("is vect_db empty {}", vect_db.empty());
     // Create a book database BookDatabase<std::vector<Book>> db;
 
     /*

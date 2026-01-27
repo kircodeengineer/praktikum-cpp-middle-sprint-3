@@ -1,6 +1,7 @@
 #pragma once
 
 #include <print>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -14,11 +15,20 @@ namespace bookdb {
 template <BookContainerLike BookContainer = std::vector<Book>>
 class BookDatabase {
 public:
-    // Type aliases
+    using iterator = typename BookContainer::iterator;
+    using const_iterator = typename BookContainer::const_iterator;
+    using reverse_iterator = typename BookContainer::reverse_iterator;
+    using const_reverse_iterator = typename BookContainer::const_reverse_iterator;
 
-    // Ваш код здесь
+    using size_type = typename BookContainer::size_type;
+    using difference_type = typename BookContainer::difference_type;
 
-    using AuthorContainer = BookContainer /* Ваш код здесь */;
+    using reference = typename BookContainer::reference;
+    using const_reference = typename BookContainer::const_reference;
+
+    using AuthorContainer = std::set<std::string>;
+    using AuthorIterator = typename AuthorContainer::iterator;
+    using AuthorConstIterator = typename AuthorContainer::const_iterator;
 
     BookDatabase() = default;
 
@@ -27,9 +37,33 @@ public:
         authors_.clear();
     }
 
-    // Standard container interface methods
+    iterator begin() { return books_.begin(); }
+    iterator end() { return books_.end(); }
+    const_iterator begin() const { return books_.begin(); }
+    const_iterator end() const { return books_.end(); }
+    const_iterator cbegin() const { return books_.cbegin(); }
+    const_iterator cend() const { return books_.cend(); }
+    reverse_iterator rbegin() { return books_.rbegin(); }
+    reverse_iterator rend() { return books_.rend(); }
+    const_reverse_iterator rbegin() const { return books_.rbegin(); }
+    const_reverse_iterator rend() const { return books_.rend(); }
+    const_reverse_iterator crbegin() const { return books_.crbegin(); }
+    const_reverse_iterator crend() const { return books_.crend(); }
 
-    // Ваш код здесь
+    AuthorIterator begin_authors() { return authors_.begin(); }
+    AuthorIterator end_authors() { return authors_.end(); }
+    AuthorConstIterator begin_authors() const { return authors_.begin(); }
+    AuthorConstIterator end_authors() const { return authors_.end(); }
+
+    size_type size() const { return books_.size(); }
+    bool empty() const { return books_.empty(); }
+    void resize(size_type new_size) { books_.resize(new_size); }
+    void reserve(size_type new_capacity) { books_.reserve(new_capacity); }
+
+    reference operator[](size_type pos) { return books_[pos]; }
+    const_reference operator[](size_type pos) const { return books_[pos]; }
+    reference at(size_type pos) { return books_.at(pos); }
+    const_reference at(size_type pos) const { return books_.at(pos); }
 
 private:
     BookContainer books_;
