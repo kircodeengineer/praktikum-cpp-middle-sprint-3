@@ -326,11 +326,14 @@ int main() {
         Book{"Animal Farm", "George Orwell", 1945, Genre::Fiction, 4.4, 143},
         Book{"The Great Gatsby", "F. Scott Fitzgerald", 1925, Genre::Fiction, 4.5, 120}};
     // Author histogram
-    /*auto histogram = buildAuthorHistogramFlat(db);
-    std::print("Author histogram: {}", histogram);
+    auto histogram{buildAuthorHistogramFlat(db)};
+    std::println("Гистограмма");
+    for (const auto &[author, count] : histogram) {
+        std::println("Автор: {} Книг: {}", author, count);
+    }
 
     // Ratings
-    auto genreRatings = calculateGenreRatings(db.begin(), db.end());
+    /*auto genreRatings = calculateGenreRatings(db.begin(), db.end());
     std::print("\n\nAverage ratings by genres: {}\n", genreRatings);
 
     auto avrRating = calculateAverageRating(db);
