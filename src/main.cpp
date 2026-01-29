@@ -328,7 +328,7 @@ int main() {
 
     // Ratings
     std::println();
-    auto genre_ratings{calculateGenreRatings(db.begin(), db.end())};
+    auto genre_ratings{calculateGenreRatings(db)};
     for (const auto &[genre, rating] : genre_ratings)
         std::println("Жанр: {} Рейтинг: {}", genre, rating);
 

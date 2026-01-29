@@ -23,19 +23,15 @@ auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {})
     return histogram;
 }
 
-template <typename Iterator>
-auto calculateGenreRatings(Iterator first, Iterator last) {
-    // Тип элемента выводится из итератора
-    using BookType = typename std::iterator_traits<Iterator>::value_type;
-
+inline auto calculateGenreRatings(std::span<const Book> books) {
     std::flat_map<Genre, std::pair<double, size_t>> genre_stats;
-    std::for_each(first, last, [&](const BookType &book) {
+    for (const auto &book : books) {
         auto [it, inserted] = genre_stats.try_emplace(book.genre, std::pair{0, 0});
         auto &sum{it->second.first};
         auto &count{it->second.second};
         sum += book.rating;
         ++count;
-    });
+    };
 
     std::flat_map<Genre, double> average_ratings;
     for (const auto &[genre, stats] : genre_stats) {
@@ -47,8 +43,7 @@ auto calculateGenreRatings(Iterator first, Iterator last) {
     return average_ratings;
 }
 
-template <BookContainerLike T>
-double calculateAverageRating(const BookDatabase<T> &cont) {
+inline double calculateAverageRating(std::span<const Book> cont) {
     if (cont.empty())
         return 0.0;
 
