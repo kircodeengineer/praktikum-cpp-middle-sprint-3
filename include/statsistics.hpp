@@ -8,6 +8,7 @@
 #include <string_view>
 
 #include "book_database.hpp"
+#include "concepts.hpp"
 
 #include <print>
 
@@ -84,4 +85,25 @@ std::vector<std::reference_wrapper<const Book>> sampleRandomBooks(const BookData
     return result;
 }
 
+template <BookContainerLike T>
+std::vector<std::reference_wrapper<const Book>> getTopNBy(BookDatabase<T> &cont, size_t n, BookComparator auto &&comp) {
+    if (n == 0 || cont.empty())
+        return {};
+
+    n = std::min(n, cont.size());
+
+    auto middle{cont.begin()};
+    std::advance(middle, n);
+
+    std::partial_sort(cont.begin(), middle, cont.end(), comp);
+
+    std::vector<std::reference_wrapper<const Book>> result;
+    result.reserve(n);
+
+    for (auto it = cont.begin(); it != middle; ++it) {
+        result.emplace_back(*it);
+    }
+
+    return result;
+}
 }  // namespace bookdb

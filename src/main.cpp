@@ -389,9 +389,11 @@ int main() {
         std::cerr << "Ошибка: " << e.what() << std::endl;
     }
     // Filters
-    /*auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
+    auto filtered_example =
+        filterBooks(db.begin(), db.end(), filters::all_of(filters::YearBetween(1900, 1999), filters::RatingAbove(4.5)));
     std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
-    std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
+    std::for_each(filtered_example.cbegin(), filtered_example.cend(),
+                  [](const auto &v) { std::print("{}\n", v.get()); });
 
     // Top 3 books
     auto topBooks = getTopNBy(db, 3, comp::LessByRating{});
@@ -402,7 +404,6 @@ int main() {
     if (orwellBookIt != db.end()) {
         std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
-    */
 
     return 0;
 }
