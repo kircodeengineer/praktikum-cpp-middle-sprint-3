@@ -323,21 +323,59 @@ int main() {
     // Author histogram
     auto histogram{buildAuthorHistogramFlat(db)};
     std::println("Гистограмма");
-    for (const auto &[author, count] : histogram) {
+    for (const auto &[author, count] : histogram)
         std::println("Автор: {} Книг: {}", author, count);
-    }
 
     // Ratings
     std::println();
     auto genre_ratings{calculateGenreRatings(db.begin(), db.end())};
-    for (const auto &[genre, rating] : genre_ratings) {
+    for (const auto &[genre, rating] : genre_ratings)
         std::println("Жанр: {} Рейтинг: {}", genre, rating);
-    }
 
     std::println();
     auto avr_rating{calculateAverageRating(db)};
     std::println("Средний рейтинг: {}\n", avr_rating);
 
+    std::println();
+    std::println("Книги в годах 1900, 1940");
+    auto pred_year{filters::YearBetween(1900, 1940)};
+    std::vector<Book> filtered;
+    std::copy_if(db.begin(), db.end(), std::back_inserter(filtered), pred_year);
+    for (const auto &book : filtered)
+        std::println("{}", book);
+
+    std::println();
+    std::println("Книги с рейтингом выше 4.5");
+    auto pred_raiting{filters::RatingAbove(4.5)};
+    filtered.clear();
+    std::copy_if(db.begin(), db.end(), std::back_inserter(filtered), pred_raiting);
+    for (const auto &book : filtered)
+        std::println("{}", book);
+
+    std::println();
+    std::println("Книги в жанре SciFi");
+    auto pred_genre{filters::GenreIs(Genre::SciFi)};
+    filtered.clear();
+    std::copy_if(db.begin(), db.end(), std::back_inserter(filtered), pred_genre);
+    for (const auto &book : filtered)
+        std::println("{}", book);
+
+    // Создаём сложные фильтры
+    auto complex_filter{filters::all_of(pred_year, pred_raiting, pred_genre)};
+
+    auto filtered_complex{filterBooks(db.begin(), db.end(), complex_filter)};
+    std::println();
+    std::println("Книги в годах 1900, 1940, с рейтингом выше 4.5, в жанре SciFi");
+    for (const auto &book : filtered_complex)
+        std::println("{}", static_cast<Book>(book));
+
+    auto complex_filter_any{filters::any_of(pred_year, pred_raiting, pred_genre)};
+
+    auto filtered_complex_any{filterBooks(db.begin(), db.end(), complex_filter_any)};
+    std::println();
+    std::println("Книги или в годах 1900, 1940 или с рейтингом выше 4.5 или в жанре SciFi");
+    for (const auto &book : filtered_complex_any)
+        std::println("{}", static_cast<Book>(book));
     // Filters
     /*auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
     std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
