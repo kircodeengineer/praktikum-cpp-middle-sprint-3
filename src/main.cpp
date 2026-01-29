@@ -376,6 +376,18 @@ int main() {
     std::println("Книги или в годах 1900, 1940 или с рейтингом выше 4.5 или в жанре SciFi");
     for (const auto &book : filtered_complex_any)
         std::println("{}", static_cast<Book>(book));
+
+    std::println();
+    std::println("3 Рандомные книги");
+    try {
+        auto sample{sampleRandomBooks(db, 3)};
+
+        for (const auto &book : sample) {
+            std::println("{}", static_cast<Book>(book));
+        }
+    } catch (const std::exception &e) {
+        std::cerr << "Ошибка: " << e.what() << std::endl;
+    }
     // Filters
     /*auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
     std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
