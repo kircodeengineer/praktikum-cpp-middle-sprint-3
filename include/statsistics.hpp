@@ -46,4 +46,15 @@ auto calculateGenreRatings(Iterator first, Iterator last) {
     return average_ratings;
 }
 
+template <BookContainerLike T>
+double calculateAverageRating(const BookDatabase<T> &cont) {
+    if (cont.empty())
+        return 0.0;
+
+    double total_rating{
+        std::accumulate(cont.begin(), cont.end(), 0.0, [](double sum, const auto &book) { return sum + book.rating; })};
+
+    return total_rating / static_cast<double>(cont.size());
+}
+
 }  // namespace bookdb

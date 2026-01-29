@@ -333,16 +333,16 @@ int main() {
     }
 
     // Ratings
-    auto genreRatings{calculateGenreRatings(db.begin(), db.end())};
-    for (const auto &[genre, rating] : genreRatings) {
+    auto genre_ratings{calculateGenreRatings(db.begin(), db.end())};
+    for (const auto &[genre, rating] : genre_ratings) {
         std::println("Жанр: {} Рейтинг: {}", genre, rating);
     }
 
-    /*auto avrRating = calculateAverageRating(db);
-    std::print("Average books rating in library: {}\n", avrRating);
+    auto avr_rating{calculateAverageRating(db)};
+    std::println("Средний рейтинг: {}\n", avr_rating);
 
     // Filters
-    auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
+    /*auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
     std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
     std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
 
