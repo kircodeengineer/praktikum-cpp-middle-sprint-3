@@ -82,8 +82,29 @@ public:
     size_type size() const { return books_.size(); }
     bool empty() const { return books_.empty(); }
     void resize(size_type new_size) {
+        if (new_size >= books_.size()) {
+            books_.resize(new_size);
+            return;
+        }
+
+        std::unordered_set<std::string> removed_authors;
+        for (size_type i = new_size; i < books_.size(); ++i) {
+            removed_authors.insert(books_[i].author);
+        }
+
         books_.resize(new_size);
-    }  // TODO добавить проверку удаления вместе с изменением размера всех книг автора
+
+        std::unordered_set<std::string> remaining_authors;
+        for (const auto &book : books_) {
+            remaining_authors.insert(book.author);
+        }
+
+        for (const auto &author : removed_authors) {
+            if (remaining_authors.find(author) == remaining_authors.end()) {
+                authors_.erase(author);
+            }
+        }
+    }
     void reserve(size_type new_capacity) { books_.reserve(new_capacity); }
 
     reference operator[](size_type pos) { return books_[pos]; }
