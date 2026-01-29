@@ -333,10 +333,12 @@ int main() {
     }
 
     // Ratings
-    /*auto genreRatings = calculateGenreRatings(db.begin(), db.end());
-    std::print("\n\nAverage ratings by genres: {}\n", genreRatings);
+    auto genreRatings{calculateGenreRatings(db.begin(), db.end())};
+    for (const auto &[genre, rating] : genreRatings) {
+        std::println("Жанр: {} Рейтинг: {}", genre, rating);
+    }
 
-    auto avrRating = calculateAverageRating(db);
+    /*auto avrRating = calculateAverageRating(db);
     std::print("Average books rating in library: {}\n", avrRating);
 
     // Filters
