@@ -304,27 +304,22 @@ int main() {
     db.EmplaceBack("Lord of the Flies", "William Golding", 1954, Genre::Fiction, 4.2, 89);
     std::println();
     std::println("is vect_db empty {}", db.empty());
-    for (const auto &book : db)
-        std::println("{}", book);
-    // std::print("Books: {}\n\n", db);
+
+    std::println();
+    std::println("Books: {}\n\n", db);
 
     // Sorts
     std::sort(db.begin(), db.end(), comp::LessByAuthor{});
-    // std::print("Books sorted by author: {}\n\n==================\n", db);
-    std::println("Books sorted by author:");
-    for (const auto &book : db)
-        std::println("{}", book);
+    std::println("Books sorted by author: {}\n\n==================\n", db);
 
     std::sort(db.begin(), db.end(), comp::LessByRating{});
-    // std::print("Books sorted by popularity: {}\n\n==================\n", db);
-    std::println("Books sorted by popularity:");
-    for (const auto &book : db)
-        std::println("{}", book);
+    std::println("Books sorted by popularity: {}\n\n==================\n", db);
 
     BookDatabase<std::vector<Book>> init_list_db{
         Book{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190},
         Book{"Animal Farm", "George Orwell", 1945, Genre::Fiction, 4.4, 143},
         Book{"The Great Gatsby", "F. Scott Fitzgerald", 1925, Genre::Fiction, 4.5, 120}};
+
     // Author histogram
     auto histogram{buildAuthorHistogramFlat(db)};
     std::println("Гистограмма");
@@ -333,11 +328,13 @@ int main() {
     }
 
     // Ratings
+    std::println();
     auto genre_ratings{calculateGenreRatings(db.begin(), db.end())};
     for (const auto &[genre, rating] : genre_ratings) {
         std::println("Жанр: {} Рейтинг: {}", genre, rating);
     }
 
+    std::println();
     auto avr_rating{calculateAverageRating(db)};
     std::println("Средний рейтинг: {}\n", avr_rating);
 
