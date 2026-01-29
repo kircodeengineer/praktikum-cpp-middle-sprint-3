@@ -1,14 +1,15 @@
 #pragma once
 
+#include "book_database.hpp"
+#include "concepts.hpp"
 #include <algorithm>
+#include <execution>
 #include <flat_map>
 #include <iterator>
+#include <numeric>
 #include <random>
 #include <stdexcept>
 #include <string_view>
-
-#include "book_database.hpp"
-#include "concepts.hpp"
 
 #include <print>
 
@@ -47,9 +48,8 @@ inline double calculateAverageRating(std::span<const Book> cont) {
     if (cont.empty())
         return 0.0;
 
-    double total_rating{
-        std::accumulate(cont.begin(), cont.end(), 0.0, [](double sum, const auto &book) { return sum + book.rating; })};
-
+    double total_rating{std::transform_reduce(std::execution::par_unseq, cont.begin(), cont.end(), 0.0,
+                                              std::plus<double>{}, [](const Book &book) { return book.rating; })};
     return total_rating / static_cast<double>(cont.size());
 }
 

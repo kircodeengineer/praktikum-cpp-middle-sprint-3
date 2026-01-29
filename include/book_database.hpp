@@ -88,22 +88,18 @@ public:
         }
 
         std::unordered_set<std::string> removed_authors;
-        for (size_type i = new_size; i < books_.size(); ++i) {
+        for (size_type i = new_size; i < books_.size(); ++i)
             removed_authors.insert(books_[i].author);
-        }
 
         books_.resize(new_size);
 
         std::unordered_set<std::string> remaining_authors;
-        for (const auto &book : books_) {
+        for (const auto &book : books_)
             remaining_authors.insert(book.author);
-        }
 
-        for (const auto &author : removed_authors) {
-            if (remaining_authors.find(author) == remaining_authors.end()) {
+        for (const auto &author : removed_authors)
+            if (remaining_authors.find(author) == remaining_authors.end())
                 authors_.erase(author);
-            }
-        }
     }
     void reserve(size_type new_capacity) { books_.reserve(new_capacity); }
 
