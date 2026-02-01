@@ -26,11 +26,11 @@ public:
     using reference = typename BookContainer::reference;
     using const_reference = typename BookContainer::const_reference;
 
-    using AuthorContainer = std::unordered_set<std::string>;
+    using AuthorContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
     using AuthorIterator = typename AuthorContainer::iterator;
     using AuthorConstIterator = typename AuthorContainer::const_iterator;
 
-    using TitleContainer = std::unordered_set<std::string>;
+    using TitleContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
     using TitleIterator = typename TitleContainer::iterator;
     using TitleConstIterator = typename TitleContainer::const_iterator;
 
@@ -66,9 +66,9 @@ public:
         books_.emplace_back(std::move(emplace_book));
     }
 
-    const std::vector<Book> &GetBooks() const { return books_; }
+    const BookContainer &GetBooks() const { return books_; }
 
-    const std::unordered_set<std::string> &GetAuthors() const { return authors_; }
+    const AuthorContainer &GetAuthors() const { return authors_; }
 
     iterator begin() { return books_.begin(); }
     iterator end() { return books_.end(); }
@@ -137,10 +137,9 @@ private:
 private:
     template <TitleAuthorContainerLike Cont, typename Key = typename Cont::key_type>
     auto GetOrInsertStrView(Cont &cont, std::string_view sv) {
-        Key key{sv};
-        auto it{cont.find(key)};
+        auto it{cont.find(sv)};
         if (it == cont.end())
-            it = cont.insert(key).first;
+            it = cont.insert(Key{sv}).first;
         return it;
     }
 
