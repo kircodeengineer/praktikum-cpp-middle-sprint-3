@@ -38,8 +38,7 @@ inline auto calculateGenreRatings(std::span<const Book> books) {
     for (const auto &[genre, stats] : genre_stats) {
         auto sum{stats.first};
         auto count{stats.second};
-        if (count > 0)
-            average_ratings.try_emplace(genre, stats.first / static_cast<double>(stats.second));
+        average_ratings.try_emplace(genre, count > 0 ? sum / static_cast<double>(count) : 0.0);
     }
     return average_ratings;
 }
