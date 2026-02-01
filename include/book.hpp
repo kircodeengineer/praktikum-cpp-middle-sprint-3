@@ -63,6 +63,8 @@ struct Book {
         else
             this->genre = GenreFromString(genre_input);
     }
+
+    auto operator<=>(const Book &) const = default;
 };
 }  // namespace bookdb
 
