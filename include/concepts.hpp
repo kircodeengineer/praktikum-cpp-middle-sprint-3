@@ -32,7 +32,7 @@ template <typename T>
 concept BookIterator = std::input_iterator<T> && std::same_as<std::iter_value_t<T>, Book>;
 
 template <typename S, typename I>
-concept BookSentinel = std::sentinel_for<S, I> && std::same_as<std::iter_value_t<I>, Book>;
+concept BookSentinel = std::sentinel_for<S, I> && std::same_as<std::iter_value_t<I>, Book> && BookIterator<I>;
 
 template <typename P>
 concept BookPredicate = std::predicate<P, const Book &>;
