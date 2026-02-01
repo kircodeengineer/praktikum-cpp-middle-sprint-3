@@ -38,8 +38,7 @@ inline auto calculateGenreRatings(std::span<const Book> books) {
     for (const auto &[genre, stats] : genre_stats) {
         auto sum{stats.first};
         auto count{stats.second};
-        if (count > 0)
-            average_ratings.try_emplace(genre, stats.first / static_cast<double>(stats.second));
+        average_ratings.try_emplace(genre, count > 0 ? sum / static_cast<double>(count) : 0.0);
     }
     return average_ratings;
 }
@@ -55,28 +54,18 @@ inline double calculateAverageRating(std::span<const Book> cont) {
 
 template <BookContainerLike T>
 std::vector<std::reference_wrapper<const Book>> sampleRandomBooks(const BookDatabase<T> &cont, size_t sample_size) {
-    if (sample_size > cont.size()) {
+    if (sample_size > cont.size())
         throw std::out_of_range("Размер выборки превышает количество книг в базе");
-    }
-    if (sample_size == 0) {
+
+    if (sample_size == 0)
         return {};
-    }
 
     static std::random_device rd;
     static std::mt19937 gen(rd());
-
-    std::vector<size_t> indices(cont.size());
-    std::iota(indices.begin(), indices.end(), 0);
-
-    std::shuffle(indices.begin(), indices.end(), gen);
-
     std::vector<std::reference_wrapper<const Book>> result;
     result.reserve(sample_size);
 
-    for (size_t i = 0; i < sample_size; ++i) {
-        result.emplace_back(cont[indices[i]]);
-    }
-
+    std::sample(cont.begin(), cont.end(), std::back_inserter(result), sample_size, gen);
     return result;
 }
 

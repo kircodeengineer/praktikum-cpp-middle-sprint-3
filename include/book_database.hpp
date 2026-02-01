@@ -26,9 +26,13 @@ public:
     using reference = typename BookContainer::reference;
     using const_reference = typename BookContainer::const_reference;
 
-    using AuthorContainer = std::unordered_set<std::string>;
+    using AuthorContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
     using AuthorIterator = typename AuthorContainer::iterator;
     using AuthorConstIterator = typename AuthorContainer::const_iterator;
+
+    using TitleContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
+    using TitleIterator = typename TitleContainer::iterator;
+    using TitleConstIterator = typename TitleContainer::const_iterator;
 
     BookDatabase() = default;
 
@@ -45,21 +49,26 @@ public:
 
     void PushBack(const Book &book) {
         auto author_it{GetOrInsertAuthor(book.author)};
-        books_.push_back(Book{book.title, *author_it, book.year, book.genre, book.rating, book.read_count});
+        auto title_it{GetOrInsertTitle(book.title)};
+        Book push_book{book};
+        push_book.title = *title_it;
+        push_book.author = *author_it;
+        books_.push_back(std::move(push_book));
     }
 
     template <typename... Args>
     void EmplaceBack(Args &&...args) {
-        Book temp_book(std::forward<Args>(args)...);
-        auto author_it{GetOrInsertAuthor(temp_book.author)};
-
-        books_.emplace_back(temp_book.title, *author_it, temp_book.year, temp_book.genre, temp_book.rating,
-                            temp_book.read_count);
+        Book emplace_book(std::forward<Args>(args)...);
+        auto author_it{GetOrInsertAuthor(emplace_book.author)};
+        auto title_it{GetOrInsertTitle(emplace_book.title)};
+        emplace_book.title = *title_it;
+        emplace_book.author = *author_it;
+        books_.emplace_back(std::move(emplace_book));
     }
 
-    const std::vector<Book> &GetBooks() const { return books_; }
+    const BookContainer &GetBooks() const { return books_; }
 
-    const std::unordered_set<std::string> &GetAuthors() const { return authors_; }
+    const AuthorContainer &GetAuthors() const { return authors_; }
 
     iterator begin() { return books_.begin(); }
     iterator end() { return books_.end(); }
@@ -88,19 +97,31 @@ public:
         }
 
         std::unordered_set<std::string> removed_authors;
-        for (size_type i = new_size; i < books_.size(); ++i)
+        std::unordered_set<std::string> removed_titles;
+
+        for (size_type i = new_size; i < books_.size(); ++i) {
             removed_authors.insert(books_[i].author);
+            removed_titles.insert(books_[i].title);
+        }
 
         books_.resize(new_size);
 
-        std::unordered_set<std::string> remaining_authors;
-        for (const auto &book : books_)
-            remaining_authors.insert(book.author);
+        std::unordered_set<std::string> current_authors;
+        std::unordered_set<std::string> current_titles;
+        for (const auto &book : books_) {
+            current_authors.insert(book.author);
+            current_titles.insert(book.title);
+        }
 
-        for (const auto &author : removed_authors)
-            if (remaining_authors.find(author) == remaining_authors.end())
-                authors_.erase(author);
+        std::erase_if(authors_, [&current_authors](const std::string &author) {
+            return current_authors.find(author) == current_authors.end();
+        });
+
+        std::erase_if(titles_, [&current_titles](const std::string &title) {
+            return current_titles.find(title) == current_titles.end();
+        });
     }
+
     void reserve(size_type new_capacity) { books_.reserve(new_capacity); }
 
     reference operator[](size_type pos) { return books_[pos]; }
@@ -111,15 +132,20 @@ public:
 private:
     BookContainer books_;
     AuthorContainer authors_;
+    TitleContainer titles_;
 
 private:
-    AuthorIterator GetOrInsertAuthor(std::string_view author_name) {
-        auto it{authors_.find(std::string(author_name))};
-        if (it == authors_.end()) {
-            it = authors_.insert(std::string(author_name)).first;
-        }
+    template <TitleAuthorContainerLike Cont, typename Key = typename Cont::key_type>
+    auto GetOrInsertStrView(Cont &cont, std::string_view sv) {
+        auto it{cont.find(sv)};
+        if (it == cont.end())
+            it = cont.insert(Key{sv}).first;
         return it;
     }
+
+    AuthorIterator GetOrInsertAuthor(std::string_view author_name) { return GetOrInsertStrView(authors_, author_name); }
+
+    TitleIterator GetOrInsertTitle(std::string_view title) { return GetOrInsertStrView(titles_, title); }
 };
 
 }  // namespace bookdb

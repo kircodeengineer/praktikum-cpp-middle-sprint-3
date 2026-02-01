@@ -99,9 +99,3 @@ TEST(CalculateGenreRatingsTest, EmptyBooks) {
     auto ratings{bookdb::calculateGenreRatings(empty)};
     EXPECT_TRUE(ratings.empty());
 }
-
-TEST(CalculateGenreRatingsTest, ZeroBooksPerGenre) {
-    std::vector<Book> books;
-    auto ratings{calculateGenreRatings(books)};
-    EXPECT_TRUE(ratings.empty());
-}
