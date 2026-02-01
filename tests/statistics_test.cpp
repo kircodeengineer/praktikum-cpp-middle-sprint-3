@@ -49,7 +49,7 @@ TEST(BuildAuthorHistogramFlatTest, SingleAuthor) {
     BookDatabase<std::vector<Book>> db{{Book{"A", "Author1", 2020, Genre::Fiction, 4.0, 10}}};
     auto hist{buildAuthorHistogramFlat(db)};
     EXPECT_EQ(hist.size(), 1);
-    EXPECT_EQ(hist["Author1"], 1);
+    EXPECT_EQ(hist["Author1"sv], 1);
 }
 
 TEST(BuildAuthorHistogramFlatTest, MultipleAuthors) {
@@ -58,8 +58,8 @@ TEST(BuildAuthorHistogramFlatTest, MultipleAuthors) {
                                         Book{"C", "Author1", 2022, Genre::Mystery, 5.0, 8}}};
     auto hist = buildAuthorHistogramFlat(db);
     EXPECT_EQ(hist.size(), 2);
-    EXPECT_EQ(hist["Author1"], 2);
-    EXPECT_EQ(hist["Author2"], 1);
+    EXPECT_EQ(hist["Author1"sv], 2);
+    EXPECT_EQ(hist["Author2"sv], 1);
 }
 
 TEST(BuildAuthorHistogramFlatTest, EmptyDatabase) {
