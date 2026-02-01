@@ -50,16 +50,20 @@ public:
     void PushBack(const Book &book) {
         auto author_it{GetOrInsertAuthor(book.author)};
         auto title_it{GetOrInsertTitle(book.title)};
-        books_.push_back(Book{*title_it, *author_it, book.year, book.genre, book.rating, book.read_count});
+        Book push_book{book};
+        push_book.title = *title_it;
+        push_book.author = *author_it;
+        books_.push_back(std::move(push_book));
     }
 
     template <typename... Args>
     void EmplaceBack(Args &&...args) {
-        Book temp_book(std::forward<Args>(args)...);
-        auto author_it{GetOrInsertAuthor(temp_book.author)};
-        auto title_it{GetOrInsertTitle(temp_book.title)};
-        books_.emplace_back(*title_it, *author_it, temp_book.year, temp_book.genre, temp_book.rating,
-                            temp_book.read_count);
+        Book emplace_book(std::forward<Args>(args)...);
+        auto author_it{GetOrInsertAuthor(emplace_book.author)};
+        auto title_it{GetOrInsertTitle(emplace_book.title)};
+        emplace_book.title = *title_it;
+        emplace_book.author = *author_it;
+        books_.emplace_back(std::move(emplace_book));
     }
 
     const std::vector<Book> &GetBooks() const { return books_; }
