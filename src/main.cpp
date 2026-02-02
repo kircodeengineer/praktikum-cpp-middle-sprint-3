@@ -1,9 +1,10 @@
 #include <algorithm>
 
+#include "book.hpp"
 #include "book_database.hpp"
 #include "comparators.hpp"
 #include "filters.hpp"
-#include "statsistics.hpp"
+#include "statistics.hpp"
 
 using namespace bookdb;
 
@@ -20,9 +21,7 @@ int main() {
     // Create a book database
     BookDatabase<std::vector<Book>> db;
 
-    /*
-
-    Код закомментирован, чтобы не приводить к ошибке компиляции
+    // Код закомментирован, чтобы не приводить к ошибке компиляции
 
     // Add some books
     db.EmplaceBack("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
@@ -41,22 +40,25 @@ int main() {
     std::sort(db.begin(), db.end(), comp::LessByAuthor{});
     std::print("Books sorted by author: {}\n\n==================\n", db);
 
-    std::sort(db.begin(), db.end(), comp::LessByPopularity{});
+    std::sort(db.begin(), db.end(), comp::LessByReadCount{});
     std::print("Books sorted by popularity: {}\n\n==================\n", db);
 
     // Author histogram
     auto histogram = buildAuthorHistogramFlat(db);
-    std::print("Author histogram: {}", histogram);
+    for (const auto &[author, count] : histogram)
+        std::println("Автор: {} Книг: {}", author, count);
 
     // Ratings
-    auto genreRatings = calculateGenreRatings(db.begin(), db.end());
-    std::print("\n\nAverage ratings by genres: {}\n", genreRatings);
+    auto genreRatings = calculateGenreRatings(db);
+    for (const auto &[genre, rating] : genreRatings)
+        std::println("Жанр: {} Рейтинг: {}", genre, rating);
 
     auto avrRating = calculateAverageRating(db);
     std::print("Average books rating in library: {}\n", avrRating);
 
     // Filters
-    auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
+    auto filtered =
+        filterBooks(db.begin(), db.end(), all_of(filters::YearBetween(1900, 1999), filters::RatingAbove(4.5)));
     std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
     std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
 
@@ -69,7 +71,6 @@ int main() {
     if (orwellBookIt != db.end()) {
         std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
-    */
 
     return 0;
 }
